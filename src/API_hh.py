@@ -1,6 +1,9 @@
 from typing import Any
+from src.logger import logger_setup
 
 import requests
+
+logger = logger_setup()
 
 
 class HeadHunterAPI:
@@ -26,13 +29,23 @@ class HeadHunterAPI:
         raise ValueError("Не удалось получить информацию")
 
     def get_employers(self, keyword: str) -> list[dict[Any, Any]]:
-        """Метод получения информации по работодателям по ключевому слову, переданное значение ищется в названии
-         и описании работодателя"""
-        if self.__is_connect('https://api.hh.ru/employers'):
-            self.__params = {'text': keyword, 'only_with_vacancies': True, 'sort_by': 'by_vacancies_open', 'page': 0,
-                             'per_page': 10}
+        """Метод получения информации по топ 10 работодателям с открытыми вакансиями по ключевому слову,
+        переданное значение ищется в названии и описании работодателя"""
+
+        logger.info("Подключение к API employers")
+
+        if self.__is_connect("https://api.hh.ru/employers"):
+            self.__params = {
+                "text": keyword,
+                "only_with_vacancies": True,
+                "sort_by": "by_vacancies_open",
+                "page": 0,
+                "per_page": 10,
+            }
+
+            logger.info('Получение данных с hh.ru по указанным параметрам по работодателю')
+
             response = requests.get(self.__url, params=self.__params)
-            print(response.json()["per_page"])
             employers = response.json()["items"]
             self.__employers.extend(employers)
 
@@ -40,8 +53,14 @@ class HeadHunterAPI:
 
     def get_vacancies(self, employer: str) -> list[dict[Any, Any]]:
         """Метод получения вакансия с сайта hh.ry по указанному id работодателя"""
+
+        logger.info("Подключение к API vacancies")
+
         self.__params = {"host": "hh.ru", "employer_id": employer}
-        if self.__is_connect('https://api.hh.ru/vacancies'):
+        if self.__is_connect("https://api.hh.ru/vacancies"):
+
+            logger.info('Получение данных с hh.ru по указанным параметрам по вакансиям по определенному работодателю')
+
             response = requests.get(self.__url, params=self.__params)
             if len(response.json()["items"]) <= 0:
                 raise ValueError("По указанному запросу нет вакансий")
@@ -53,5 +72,5 @@ class HeadHunterAPI:
 
 if __name__ == "__main__":
     vac = HeadHunterAPI()
-    print(vac.get_employers('it'))
-    print(vac.get_vacancies('78638'))
+    print(vac.get_employers("it"))
+    print(vac.get_vacancies("78638"))
