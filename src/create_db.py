@@ -66,6 +66,30 @@ class CreateDB:
         conn.close()
         logger.info("БД и таблицы в ней успешно созданы")
 
+    def insert_data_employers(self, employers: list[dict]) -> None:
+        """Метод заполнения данными таблицы работодатель"""
+        conn = psycopg2.connect(dbname=self.db_name, **self.__params)
+        logger.info("Заполнение таблицы работодатели")
+
+        with conn.cursor() as cur:
+            for employer in employers:
+                cur.execute(
+                    "INSERT INTO employers (id_employer, name) VALUES (%s, %s)",
+                    (employer["id"], employer["name"]))
+
+    def insert_data_vacancies(self, vacancies: list[dict]) -> None:
+        """Метод заполнения данными таблицы вакансии"""
+        conn = psycopg2.connect(dbname=self.db_name, **self.__params)
+        logger.info("Заполнение таблицы вакансии")
+
+        with conn.cursor() as cur:
+            for vacancy in vacancies:
+                cur.execute(
+                    "INSERT INTO vacancies (id_employer, name, salary_from, salary_to, currency, url, requirements)"
+                    " VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (vacancy["employer"]['id'], vacancy["name"], vacancy["salary_from"], vacancy["salary_to"],
+                     vacancy["currency"], vacancy["url"], vacancy["requirements"]))
+
 
 if __name__ == "__main__":
     db = CreateDB()
