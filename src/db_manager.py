@@ -1,6 +1,5 @@
 from src.logger import logger_setup
 
-
 logger = logger_setup()
 
 
@@ -13,7 +12,7 @@ class DBManager:
 
     def get_all_vacancies(self) -> list[dict]:
         """Метод получения списка всех вакансий с указанием названия компании, названия вакансии и зарплаты
-         и ссылки на вакансию."""
+        и ссылки на вакансию."""
         pass
 
     def get_avg_salary(self) -> list[dict]:

@@ -1,7 +1,8 @@
-from src.logger import logger_setup
-from src.config import config
-
 import psycopg2
+
+from src.config import config
+from src.logger import logger_setup
+from src.vacancies_list import VacanciesList
 
 logger = logger_setup()
 
@@ -19,16 +20,16 @@ class CreateDB:
     def __create_db(self) -> None:
         """Метод создания БД"""
 
-        logger.info('Подключение к базе данных postgres')
+        logger.info("Подключение к базе данных postgres")
 
-        conn = psycopg2.connect(dbname='postgres', **self.__params)
+        conn = psycopg2.connect(dbname="postgres", **self.__params)
         conn.autocommit = True
         cur = conn.cursor()
 
-        logger.info('Удаление базы данных, если она существует')
+        logger.info("Удаление базы данных, если она существует")
 
         cur.execute(f"DROP DATABASE  IF EXISTS {self.db_name}")
-        logger.info('Создание новой')
+        logger.info("Создание новой")
         cur.execute(f"CREATE DATABASE {self.db_name}")
 
         conn.close()
@@ -38,29 +39,33 @@ class CreateDB:
         conn = psycopg2.connect(dbname=self.db_name, **self.__params)
         logger.info("Создание таблицы Работодатель")
         with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS employers (
+            cur.execute(
+                """
+                CREATE TABLE employers (
                 id_employer INT PRIMARY KEY,
                 name VARCHAR(255)
                 )
-                """)
+                """
+            )
 
         with conn.cursor() as cur:
             logger.info("Создание таблицы Вакансии")
 
-            cur.execute("""
+            cur.execute(
+                """
                     CREATE TABLE vacancies (
                         id_vacancy SERIAL PRIMARY KEY,
                         id_employer INT REFERENCES employers(id_employer),
-                        name VARCHAR(255) NOT NULL, 
-                        salary_from INT, 
-                        salary_to INT, 
+                        name VARCHAR(255) NOT NULL,
+                        salary_from INT,
+                        salary_to INT,
                         currency VARCHAR(5),
-                        url VARCHAR(255), 
+                        url VARCHAR(255),
                         requirements TEXT
 
                     )
-                """)
+                """
+            )
 
         conn.commit()
         conn.close()
@@ -75,9 +80,12 @@ class CreateDB:
             for employer in employers:
                 cur.execute(
                     "INSERT INTO employers (id_employer, name) VALUES (%s, %s)",
-                    (employer["id"], employer["name"]))
+                    (int(employer["id"]), employer["name"]),
+                )
+        conn.commit()
+        conn.close()
 
-    def insert_data_vacancies(self, vacancies: list[dict]) -> None:
+    def insert_data_vacancies(self, vacancies: VacanciesList) -> None:
         """Метод заполнения данными таблицы вакансии"""
         conn = psycopg2.connect(dbname=self.db_name, **self.__params)
         logger.info("Заполнение таблицы вакансии")
@@ -87,8 +95,19 @@ class CreateDB:
                 cur.execute(
                     "INSERT INTO vacancies (id_employer, name, salary_from, salary_to, currency, url, requirements)"
                     " VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                    (vacancy["employer"]['id'], vacancy["name"], vacancy["salary_from"], vacancy["salary_to"],
-                     vacancy["currency"], vacancy["url"], vacancy["requirements"]))
+                    (
+                        vacancy.id_employer,
+                        vacancy.name,
+                        vacancy.salary_from,
+                        vacancy.salary_to,
+                        vacancy.currency,
+                        vacancy.url,
+                        vacancy.requirements,
+                    ),
+                )
+
+        conn.commit()
+        conn.close()
 
 
 if __name__ == "__main__":
