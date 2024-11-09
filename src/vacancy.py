@@ -22,7 +22,6 @@ class Vacancy:
             f"Требования: {self.requirements}. Полная информация по ссылке: {self.url}"
         )
 
-
     @classmethod
     def cast_to_object_list(cls, vacancies_dict: list[dict]) -> list:
         """Метод преобразования списка словарей с вакансиями в список с объектами класса Vacancy"""
