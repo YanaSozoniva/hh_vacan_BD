@@ -31,20 +31,21 @@ def main():
     for item in data_employers:
         print(f"{item['name_employer']} - {item['count_vacancies']} шт.")
 
-    answer_user = input("""Введите название компании, по которой хотите просмотреть вакансии:\n""")
-    data_vacan = db_men.get_all_vacancies()
-
     while True:
-        data_vacan_filter = [item for item in data_vacan if item["employers_name"].lower() == answer_user.lower()]
-        print(f"Вакансии компании {data_vacan_filter[0]["employers_name"]}")
-        for item in data_vacan_filter:
-            print(f"Вакансия: {item["vacancies_name"]}, зарплата {item["salary_from"]} - {item["salary_to"]} "
-                  f"{item["currency"]}. Полная информация по ссылке: {item["url"]}")
-
-        answer_user = input("""Если хотите еще посмотреть информацию по компании - введите ее название.
-        Если нет - введите 'нет':\n""")
+        answer_user = input("""Введите название компании, по которой хотите просмотреть вакансии или введите нет:\n""")
         if answer_user.lower() == 'нет':
             break
+        else:
+            data_vacan = db_men.get_all_vacancies()
+            if answer_user.lower() not in [item["employers_name"].lower() for item in data_vacan]:
+                print("Компании с таким названием нет. Будьте внимательнее и попробуйте еще раз")
+                continue
+
+            data_vacan_filter = [item for item in data_vacan if item["employers_name"].lower() == answer_user.lower()]
+            print(f"Вакансии компании {data_vacan_filter[0]["employers_name"]}")
+            for item in data_vacan_filter:
+                print(f"Вакансия: {item["vacancies_name"]}, зарплата {item["salary_from"]} - {item["salary_to"]} "
+                      f"{item["currency"]}. Полная информация по ссылке: {item["url"]}")
 
     answer_user = input("""Вывести среднюю зарплату вакансий по компаниям? (да/нет):\n""")
     if answer_user.lower() == 'да':
@@ -52,6 +53,22 @@ def main():
         for item in data_avg:
             print(f"{item['employers_name']} - {item['avg_salary']}")
 
+    answer_user = input("""Вывести список всех вакансий, у которых зарплата выше средней по всем вакансиям? 
+    (да/нет):\n""")
+    if answer_user.lower() == 'да':
+        data_avg = db_men.get_vacancies_with_higher_salary()
+        for item in data_avg:
+            print(f"{item['vacancies_name']} - {item['salary_from']} {item['currency']}")
+
+    answer_user = input("""Вывести список всех вакансий, в названии которых содержатся указанное Вами слово? 
+    Если нет - введите 'нет', иначе введите слово:\n""")
+    if answer_user.lower() != 'нет':
+        data_word = db_men.get_vacancies_with_keyword(answer_user)
+        print(f"По вашему запросу найдено {len(data_word)} вакансий")
+        for item in data_word:
+            print(f"Вакансия: {item["vacancies_name"]}, компании {item["employers_name"]}, "
+                  f"зарплата {item["salary_from"]} - {item["salary_to"]} "
+                  f"{item["currency"]}. Полная информация по ссылке: {item["url"]}")
 
 
 if __name__ == '__main__':

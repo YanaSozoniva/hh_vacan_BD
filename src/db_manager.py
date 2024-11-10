@@ -61,4 +61,13 @@ class DBManager:
 
     def get_vacancies_with_keyword(self, keyword: str) -> list[dict]:
         """Метод получения списка всех вакансий, в названии которых содержатся переданные в метод слова"""
-        pass
+        with self.conn:
+            self.cur.execute(f"SELECT  vacancies.name, employers.name, salary_from, salary_to, currency, url"
+                             f" FROM vacancies"
+                             f" LEFT JOIN employers USING (id_employer)"
+                             f" WHERE vacancies.name LIKE '%{keyword}%'")
+
+            data = self.cur.fetchall()
+            data_dict = [{"vacancies_name": d[0], "employers_name": d[1], "salary_from": d[2], "salary_to": d[3],
+                          "currency": d[4], "url": d[5]} for d in data]
+            return data_dict
