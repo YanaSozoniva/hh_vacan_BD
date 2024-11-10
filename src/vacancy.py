@@ -4,8 +4,15 @@ class Vacancy:
     __slots__ = ("id_employer", "name", "salary_from", "salary_to", "currency", "url", "requirements")
 
     def __init__(
-        self, id_employer: int, name: str, url: str, requirements: str, salary_from: int = 0, salary_to: int = 0,
-            currency: str = "RUB") -> None:
+        self,
+        id_employer: int,
+        name: str,
+        url: str,
+        requirements: str,
+        salary_from: int = 0,
+        salary_to: int = 0,
+        currency: str = "RUB",
+    ) -> None:
         """Инициализация экземпляров класса Vacancy"""
         self.id_employer = id_employer
         self.name = name
@@ -27,7 +34,7 @@ class Vacancy:
         """Метод преобразования списка словарей с вакансиями в список с объектами класса Vacancy"""
         vacancies_list = []
         for vacancy in vacancies_dict:
-            id_employer = vacancy['employer']["id"]
+            id_employer = vacancy["employer"]["id"]
             name = vacancy["name"]
             url = vacancy["alternate_url"]
             requirements = vacancy["snippet"]["requirement"]
