@@ -40,11 +40,24 @@ class DBManager:
 
     def get_avg_salary(self) -> list[dict]:
         """Метод получения средней зарплаты по вакансиям."""
-        pass
+        with self.conn:
+            self.cur.execute("""SELECT  employers.name, ROUND (avg(salary_from), 2) FROM vacancies 
+            LEFT JOIN employers USING (id_employer)
+            Group by employers.name""")
+
+            data = self.cur.fetchall()
+            data_dict = [{"employers_name": d[0], "avg_salary": d[1]} for d in data]
+            return data_dict
 
     def get_vacancies_with_higher_salary(self) -> list[dict]:
         """Метод получения списка всех вакансий, у которых зарплата выше средней по всем вакансиям."""
-        pass
+        with self.conn:
+            self.cur.execute("""SELECT  vacancies.name, salary_from, currency FROM vacancies 
+            WHERE salary_from > (SELECT avg(salary_from) FROM vacancies)""")
+
+            data = self.cur.fetchall()
+            data_dict = [{"vacancies_name": d[0], "salary_from": d[1], "currency": d[2]} for d in data]
+            return data_dict
 
     def get_vacancies_with_keyword(self, keyword: str) -> list[dict]:
         """Метод получения списка всех вакансий, в названии которых содержатся переданные в метод слова"""

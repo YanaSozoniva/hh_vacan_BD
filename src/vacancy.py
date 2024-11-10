@@ -34,8 +34,8 @@ class Vacancy:
             if vacancy["salary"] is None:
                 salary_from, salary_to, currency = 0, 0, "RUB"
             else:
-                salary_from = vacancy["salary"]["from"]
-                salary_to = vacancy.get("salary", {}).get("to")
+                salary_from = 0 if vacancy["salary"]["from"] is None else vacancy["salary"]["from"]
+                salary_to = 0 if vacancy.get("salary", {}).get("to") is None else vacancy.get("salary", {}).get("to")
                 currency = vacancy["salary"]["currency"]
             vacancies_list.append(cls(id_employer, name, url, requirements, salary_from, salary_to, currency))
         return vacancies_list

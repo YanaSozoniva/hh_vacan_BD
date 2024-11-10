@@ -74,9 +74,3 @@ class HeadHunterAPI:
                 vacancies = response.json()["items"]
                 self.__vacancies.extend(vacancies)
         return self.__vacancies
-
-
-if __name__ == "__main__":
-    vac = HeadHunterAPI()
-    print(vac.get_employers("it"))
-    print(vac.get_vacancies("78638"))
