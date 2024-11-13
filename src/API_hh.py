@@ -1,7 +1,8 @@
 from typing import Any
-from src.logger import logger_setup
 
 import requests
+
+from src.logger import logger_setup
 
 logger = logger_setup()
 
@@ -19,6 +20,11 @@ class HeadHunterAPI:
 
         self.__vacancies = []
         self.__employers = []
+
+    @property
+    def employers(self):
+        """Геттер для корректного вывода списка вакансий"""
+        return self.__employers
 
     def __is_connect(self, url: str) -> bool:
         """Метод для подключения к API"""
@@ -43,7 +49,7 @@ class HeadHunterAPI:
                 "per_page": 10,
             }
 
-            logger.info('Получение данных с hh.ru по указанным параметрам по работодателю')
+            logger.info("Получение данных с hh.ru по указанным параметрам по работодателю")
 
             response = requests.get(self.__url, params=self.__params)
             employers = response.json()["items"]
@@ -51,7 +57,7 @@ class HeadHunterAPI:
 
         return self.__employers
 
-    def get_vacancies(self, employer: str) -> list[dict[Any, Any]]:
+    def get_vacancies(self, employer: int) -> list[dict[Any, Any]]:
         """Метод получения вакансия с сайта hh.ry по указанному id работодателя"""
 
         logger.info("Подключение к API vacancies")
@@ -59,7 +65,7 @@ class HeadHunterAPI:
         self.__params = {"host": "hh.ru", "employer_id": employer}
         if self.__is_connect("https://api.hh.ru/vacancies"):
 
-            logger.info('Получение данных с hh.ru по указанным параметрам по вакансиям по определенному работодателю')
+            logger.info("Получение данных с hh.ru по указанным параметрам по вакансиям по определенному работодателю")
 
             response = requests.get(self.__url, params=self.__params)
             if len(response.json()["items"]) <= 0:
@@ -68,9 +74,3 @@ class HeadHunterAPI:
                 vacancies = response.json()["items"]
                 self.__vacancies.extend(vacancies)
         return self.__vacancies
-
-
-if __name__ == "__main__":
-    vac = HeadHunterAPI()
-    print(vac.get_employers("it"))
-    print(vac.get_vacancies("78638"))
